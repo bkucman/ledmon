@@ -1127,6 +1127,8 @@ int main(int argc, char *argv[])
 	led_status_t status;
 	struct request req;
 
+	char *test_codeql = (char *)malloc(sizeof(char) * 20);
+
 	if (argc == 1) {
 		fprintf(stderr, "Program cannot be run without parameters.\n");
 		return LED_STATUS_CMDLINE_ERROR;

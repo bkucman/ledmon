@@ -36,6 +36,7 @@
 #include <unistd.h>
 #include <sys/sysmacros.h>
 #include <stdbool.h>
+#include <time.h>
 
 #if _HAVE_DMALLOC_H
 #include <dmalloc.h>
@@ -1127,6 +1128,13 @@ int main(int argc, char *argv[])
 	led_status_t status;
 	struct request req;
 
+	time_t timestamp;
+	struct tm *t;
+	char buf[30];
+
+	timestamp = time(NULL);
+	t = localtime(&timestamp);
+	
 	char *test_codeql = (char *)malloc(sizeof(char) * 20);
 
 	

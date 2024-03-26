@@ -1129,7 +1129,9 @@ int main(int argc, char *argv[])
 
 	char *test_codeql = (char *)malloc(sizeof(char) * 20);
 
-	if (argc == 1) {
+	
+
+	if (argc == 1 && test_codeql) {
 		fprintf(stderr, "Program cannot be run without parameters.\n");
 		return LED_STATUS_CMDLINE_ERROR;
 	}

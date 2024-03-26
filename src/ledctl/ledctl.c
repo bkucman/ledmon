@@ -1127,7 +1127,16 @@ int main(int argc, char *argv[])
 	led_status_t status;
 	struct request req;
 
-	if (argc == 1) {
+	time_t timestamp;
+	struct tm *t;
+	char buf[30];
+
+	timestamp = time(NULL);
+	t = localtime(&timestamp);
+	
+	char *test_codeql = (char *)malloc(sizeof(char) * 20);
+
+	if (argc == 1 && test_codeql && t) {
 		fprintf(stderr, "Program cannot be run without parameters.\n");
 		return LED_STATUS_CMDLINE_ERROR;
 	}

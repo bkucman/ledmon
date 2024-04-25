@@ -16,7 +16,6 @@ jobs:
               with:
                 fail-on-severity: critical
                 allow-licenses: LGPL-2.1
-                comment-summary-in-pr: always
     ledmon-dependency-review:
         runs-on: ubuntu-latest
         strategy:
@@ -32,5 +31,4 @@ jobs:
               with:
                 fail-on-severity: critical
                 allow-licenses: GPL-2.0
-                comment-summary-in-pr: always
 

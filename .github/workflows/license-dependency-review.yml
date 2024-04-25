@@ -1,0 +1,36 @@
+name: License Lib - Dependency Review
+on: [pull_request]
+    # paths:
+    # - './src/lib/**'
+
+permissions:
+    contents: read
+
+jobs:
+    dependency-review:
+        runs-on: ubuntu-latest
+        steps:
+            - working-directory: ./src/lib
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: 'License Review'
+              uses: actions/dependency-review-action@v2.5.1
+              with:
+                fail-on-severity: critical
+                allow-licenses: LGPL-2.1
+                comment-summary-in-pr: always
+    ledmon-dependency-review:
+        runs-on: ubuntu-latest
+        strategy:
+          matrix: { dir: ['./src/ledmon', './src/ledctl', './src/common'] }
+        steps:
+            - working-directory: ${{ matrix.dir }}
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: 'License Review'
+              uses: actions/dependency-review-action@v2.5.1
+              with:
+                fail-on-severity: critical
+                allow-licenses: GPL-2.0
+                comment-summary-in-pr: always
+

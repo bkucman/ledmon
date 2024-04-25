@@ -2,16 +2,13 @@ name: License Lib - Dependency Review
 on: [pull_request]
     # paths:
     # - './src/lib/**'
-
-permissions:
-    contents: read
-
 jobs:
     dependency-review:
         runs-on: ubuntu-latest
+        defaults:
+          run:
+            working-directory: ./src/lib
         steps:
-            - name: Directory
-              working-directory: ./src/lib
             - name: Checkout
               uses: actions/checkout@v4
             - name: 'License Review'
@@ -24,9 +21,10 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
           matrix: { dir: ['./src/ledmon', './src/ledctl', './src/common'] }
+        defaults:
+          run:
+            working-directory: ${{ matrix.dir }}
         steps:
-            - name: Directory
-              working-directory: ${{ matrix.dir }}
             - name: Checkout
               uses: actions/checkout@v4
             - name: 'License Review'

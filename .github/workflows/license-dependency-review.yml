@@ -10,7 +10,8 @@ jobs:
     dependency-review:
         runs-on: ubuntu-latest
         steps:
-            - working-directory: ./src/lib
+            - name: Directory
+              working-directory: ./src/lib
             - name: Checkout
               uses: actions/checkout@v4
             - name: 'License Review'
@@ -24,7 +25,8 @@ jobs:
         strategy:
           matrix: { dir: ['./src/ledmon', './src/ledctl', './src/common'] }
         steps:
-            - working-directory: ${{ matrix.dir }}
+            - name: Directory
+              working-directory: ${{ matrix.dir }}
             - name: Checkout
               uses: actions/checkout@v4
             - name: 'License Review'

@@ -367,7 +367,7 @@ static int _enable_smbus_control(struct amd_drive *drive)
 	return _set_ipmi_register(1, 0x3c, drive);
 }
 
-static int _change_ibpi_state(struct amd_drive *drive, enum led_ibpi_pattern ibpi, bool enable)
+static status_t _change_ibpi_state(struct amd_drive *drive, enum led_ibpi_pattern ibpi, bool enable)
 {
 	const struct ibpi2value *ibpi2val = get_by_ibpi(ibpi, ibpi2amd_ipmi,
 							ARRAY_SIZE(ibpi2amd_ipmi));
@@ -381,10 +381,12 @@ static int _change_ibpi_state(struct amd_drive *drive, enum led_ibpi_pattern ibp
 	lib_log(drive->ctx, LED_LOG_LEVEL_DEBUG, "%s %s LED\n", (enable) ? "Enabling" : "Disabling",
 		ibpi2str(ibpi));
 
-	return _set_ipmi_register(enable, ibpi2val->value, drive);
+	if(_set_ipmi_register(enable, ibpi2val->value, drive))
+		return STATUS_FILE_WRITE_ERROR;
+	return STATUS_SUCCESS;
 }
 
-static int _disable_all_ibpi_states(struct amd_drive *drive)
+static status_t _disable_all_ibpi_states(struct amd_drive *drive)
 {
 	int rc;
 
@@ -394,7 +396,9 @@ static int _disable_all_ibpi_states(struct amd_drive *drive)
 	rc |= _change_ibpi_state(drive, LED_IBPI_PATTERN_FAILED_ARRAY, false);
 	rc |= _change_ibpi_state(drive, LED_IBPI_PATTERN_REBUILD, false);
 
-	return rc;
+	if (rc)
+		return STATUS_FILE_WRITE_ERROR;
+	return STATUS_SUCCESS;
 }
 
 int _amd_ipmi_em_enabled(const char *path, struct led_ctx *ctx)
@@ -436,9 +440,8 @@ int _amd_ipmi_em_enabled(const char *path, struct led_ctx *ctx)
 	return 1;
 }
 
-int _amd_ipmi_write(struct block_device *device, enum led_ibpi_pattern ibpi)
+status_t _amd_ipmi_write(struct block_device *device, enum led_ibpi_pattern ibpi)
 {
-	int rc;
 	struct amd_drive drive;
 
 	memset(&drive, 0, sizeof(struct amd_drive));
@@ -447,30 +450,22 @@ int _amd_ipmi_write(struct block_device *device, enum led_ibpi_pattern ibpi)
 	lib_log(drive.ctx, LED_LOG_LEVEL_INFO, "\n");
 	lib_log(drive.ctx, LED_LOG_LEVEL_INFO, "Setting %s...", ibpi2str(ibpi));
 
-	rc = _get_amd_ipmi_drive(device->cntrl_path, &drive);
-	if (rc)
-		return rc;
+	if (_get_amd_ipmi_drive(device->cntrl_path, &drive))
+		return STATUS_FILE_READ_ERROR;
 
 	if ((ibpi == LED_IBPI_PATTERN_NORMAL) ||
 	    (ibpi == LED_IBPI_PATTERN_ONESHOT_NORMAL)) {
-		rc = _disable_all_ibpi_states(&drive);
-		return rc;
+		return _disable_all_ibpi_states(&drive);
 	}
 
 	if (ibpi == LED_IBPI_PATTERN_LOCATE_OFF) {
-		rc = _change_ibpi_state(&drive, LED_IBPI_PATTERN_LOCATE, false);
-		return rc;
+		return _change_ibpi_state(&drive, LED_IBPI_PATTERN_LOCATE, false);
 	}
 
-	rc = _enable_smbus_control(&drive);
-	if (rc)
-		return rc;
+	if (_enable_smbus_control(&drive))
+		return STATUS_FILE_WRITE_ERROR;
 
-	rc = _change_ibpi_state(&drive, ibpi, true);
-	if (rc)
-		return rc;
-
-	return 0;
+	return _change_ibpi_state(&drive, ibpi, true);
 }
 
 char *_amd_ipmi_get_path(const char *cntrl_path, const char *sysfs_path)

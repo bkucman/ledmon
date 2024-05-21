@@ -735,6 +735,8 @@ static void _add_block(struct block_device *block)
  */
 static void _send_msg(struct block_device *block)
 {
+	status_t status;
+
 	if (!block->cntrl) {
 		log_debug("Missing cntrl for dev: %s. Not sending anything.",
 			  strstr(block->sysfs_path, "host"));
@@ -753,8 +755,41 @@ static void _send_msg(struct block_device *block)
 				  host ? host : block->sysfs_path);
 		}
 	}
-	block->send_fn(block, block->ibpi);
+
+	status = block->send_fn(block, block->ibpi);
+	if (status == STATUS_INVALID_STATE) {
+		switch (block->ibpi) {
+		/* Following two statuses generally means nothing to do with status device. */
+		case LED_IBPI_PATTERN_UNKNOWN:
+		case LED_IBPI_PATTERN_NONE:
+			status = STATUS_SUCCESS;
+			break;
+		case LED_IBPI_PATTERN_ADDED:
+		case LED_IBPI_PATTERN_REMOVED:
+			log_debug("Inappropiate IBPI LED status to set: %s on %s",
+				    ibpi2str(block->ibpi), block->sysfs_path);
+			return;
+		/**
+		 * Following two patterns depending on the BLINK_ON_MIGR and REBUILD_BLINK_ON_ALL
+		 * flags can be overwritten by REBUILD pattern which is supported by controllers,
+		 * but when flags are not enabled the ledmon tries to set these patterns, but are
+		 * not supported by most controllers, as a result device LED is not updated,
+		 * LED may store wrong status, so for this reason it will be overwritten by Normal.
+		 */
+		case LED_IBPI_PATTERN_DEGRADED:
+		case LED_IBPI_PATTERN_HOTSPARE:
+			block->ibpi = LED_IBPI_PATTERN_NORMAL;
+			status = block->send_fn(block, block->ibpi);
+		default:
+			break;
+		}
+	}
+
 	block->ibpi_prev = block->ibpi;
+
+	if (status)
+		log_error("Unable to set %s IBPI state on %s. Status: %d",
+			  ibpi2str(block->ibpi), block->sysfs_path, status);
 }
 
 static void _flush_msg(struct block_device *block)

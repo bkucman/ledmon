@@ -119,7 +119,8 @@ int get_dell_server_type(struct led_ctx *ctx)
 	rc = ipmicmd(ctx, BMC_TA, 0, APP_NETFN, APP_GET_SYSTEM_INFO, 4, data,
 		     20, &rlen, rdata);
 	if (rc) {
-		lib_log(ctx, LED_LOG_LEVEL_DEBUG, "Unable to issue IPMI command GetSystemInfo\n");
+		lib_log(ctx, LED_LOG_LEVEL_DEBUG,
+			"Test: Unable to issue IPMI command GetSystemInfo\n");
 		return 0;
 	}
 	switch (rdata[10]) {

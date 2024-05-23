@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: nitpicker
-      uses: ethanis/nitpicker@v1.6
+      uses: ethanis/nitpicker@v1.7
       with:
         nitpicks: './.github/nitpicks.yml'
         token: '${{ secrets.GITHUB_TOKEN }}'

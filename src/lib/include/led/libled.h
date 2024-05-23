@@ -168,10 +168,6 @@ const LED_SYM_PUBLIC char *led_cntrl_path(struct led_cntrl_list_entry *c);
  */
 enum led_cntrl_type LED_SYM_PUBLIC  led_cntrl_type(struct led_cntrl_list_entry *c);
 
-
-
-
-
 /**
  * @brief IBPI pattern identifies.
  *
@@ -224,7 +220,7 @@ enum led_ibpi_pattern {
 	LED_IBPI_PATTERN_LOCATE_OFF = 11,
 	LED_IBPI_PATTERN_ADDED = 12,
 	LED_IBPI_PATTERN_REMOVED = 13,
-	LED_IBPI_PATTERN_LOCATE_AND_FAILED_DRIVE = 14,
+	LED_IBPI_PATTERN_LOCATE_AND_FAIL = 14,
 	/*
 	 * Below are SES-2 codes. Note that by default most IBPI messages are
 	 * translated into SES when needed but SES codes can be added also.
@@ -251,6 +247,9 @@ enum led_ibpi_pattern {
 	LED_SES_REQ_IDENT_AND_FAULT = 39,
 	LED_IBPI_PATTERN_COUNT = 50,
 };
+
+/* Backward compatibility, it was exposed in library API */
+#define LED_IBPI_PATTERN_LOCATE_AND_FAILED_DRIVE LED_IBPI_PATTERN_LOCATE_AND_FAIL
 
 /**
  * @brief Library context

@@ -89,12 +89,12 @@ class LedctlCmd:
         ])
         return self.parse_slot_line(slot.cntrl_type, out)
 
-    def list_slots(self, controller_type):
-        rc = []
-        out = self.run_ledctl_cmd_decode(
-            ["--list-slots", "--controller-type", controller_type])
+	def list_slots(self, controller_type):
+	    rc = []
+	    out = self.run_ledctl_cmd_decode(
+	        ["--list-slots", "--controller-type", controller_type])
 
-        for line in out.split("\n"):
+	    for line in out.split("\n"):
             s = self.parse_slot_line(controller_type, line)
             if s is not None:
                 rc.append(s)
